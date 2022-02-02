@@ -1,4 +1,4 @@
-package org.example.util.jdbc;
+package org.example.util.jdbc.connector;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class ConnectionUtil {
 
-    public static Connection getMyH2Connection()throws SQLException, Exception {
+    public Connection getMyH2Connection()throws SQLException, Exception { //метод по созданию соединения к бд
         String DRIVER = "org.h2.Driver";
         String URL = "jdbc:h2:mem:testdb";
         String USER_NAME = "sa";
@@ -14,10 +14,10 @@ public class ConnectionUtil {
 
         Class.forName(DRIVER);
 
-        return DriverManager.getConnection(URL,USER_NAME,PASSWORD);
+        return DriverManager.getConnection(URL,USER_NAME,PASSWORD); //ожидаем состоявшийся экземпляр соединения
     }
 
-    public static void closeQuietly(Connection connection){
+    public void closeQuietly(Connection connection){ //метод по закрытию соединения
         try{
             connection.close();
         }catch (Exception e){
@@ -25,7 +25,7 @@ public class ConnectionUtil {
         }
     }
 
-    public static void rollbackQuietly(Connection connection){
+    public void rollbackQuietly(Connection connection){ //откат изменений
         try {
             connection.rollback();
         }catch (Exception e){

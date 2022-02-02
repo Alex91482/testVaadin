@@ -1,24 +1,31 @@
 package org.example.util.init;
 
-import org.example.util.jdbc.ConnectionUtil;
-import org.example.util.jdbc.dao.MyAccountDAO;
 
-import java.sql.Connection;
+import org.example.entity.MyEvent;
+import org.example.util.jdbc.dao.MyAccountDAO;
+import org.example.util.jdbc.dao.MyEventDAO;
 
 public class Init {
 
-    public static void main(String[]args) throws Exception{
-        ConnectionUtil connectionUtil = new ConnectionUtil();
-        Connection oneConnection = connectionUtil.getMyH2Connection();
+    //спроэктировать так что бы было возможно запустить лишь раз
+    //возможно синглтон
 
-        MyAccountDAO myAccountDAO = new MyAccountDAO();
-        myAccountDAO.createTableMyAccount(oneConnection);
-        myAccountDAO.saveAccount(oneConnection,"admin","admin");
-
-        connectionUtil.closeQuietly(oneConnection);
-
-        System.out.println("Th sleep");
-        Thread.sleep(48000);
-        System.out.println("end");
+    public void initial(){
+        try {
+            MyAccountDAO myAccountDAO = new MyAccountDAO();
+            MyEventDAO myEventDAO = new MyEventDAO();
+            //создаем таблицы
+            myAccountDAO.createTableMyAccount();
+            myEventDAO.createTableMyEvent();
+            //создаем тестовые данные
+            //тестовый аккаунт
+            myAccountDAO.saveMyAccount("admin","admin");
+            //тестовые события
+            myEventDAO.saveMyEvent(new MyEvent().builder().id(1L).name("Ded Dance").date("1984-01-01").city("Silent Hill").building("Church").build());
+            myEventDAO.saveMyEvent(new MyEvent().builder().id(2L).name("The Divine Comedy").date("1111-01-01").city("Hell").building("Nine Circles of Hell").build());
+            myEventDAO.saveMyEvent(new MyEvent().builder().id(3L).name("Sin City").date("2005-06-02").city("Sin City").building("...").build());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 }
