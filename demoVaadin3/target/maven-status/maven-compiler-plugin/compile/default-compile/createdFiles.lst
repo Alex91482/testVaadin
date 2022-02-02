@@ -1,0 +1,4 @@
+org\example\MyUI.class
+org\example\entity\MyEvent.class
+org\example\MyUI$MyUIServlet.class
+org\example\util\hibernate\HibernateUtil.class
