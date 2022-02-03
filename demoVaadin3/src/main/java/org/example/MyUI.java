@@ -10,6 +10,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
 import org.example.entity.MyEvent;
+import org.example.util.init.Init;
 import org.example.views.GridView;
 import org.example.views.LoginView;
 
@@ -27,6 +28,8 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+        Init init1 = Init.getInstance(); //создание таблиц
+
         LoginView loginView = new LoginView();
         GridView gridView = new GridView();
 
