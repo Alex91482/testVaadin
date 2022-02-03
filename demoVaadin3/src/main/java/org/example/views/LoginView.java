@@ -33,9 +33,10 @@ public class LoginView extends VerticalLayout implements View {
                 //если логин и пароль не пустые то делаем запрос в бд
                 MyAccount myAccount = new MyAccountDAO().findMyAccount(tf1.getValue(),passwordField.getValue());
                 if(myAccount.getUserName() != null && !myAccount.getUserName().equals("")){
+                    //проверяем поле username
                     this.getUI().getNavigator().navigateTo("grid");
                 }else{
-                    label1.setValue("User " + tf1.getValue() + "is not found");
+                    label1.setValue("User " + tf1.getValue() + " is not found");
                 }
             }else{
                 label1.setValue("Username and Password fields must be filled");

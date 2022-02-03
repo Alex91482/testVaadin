@@ -11,7 +11,7 @@ public class MyAccountDAO {
 
     public void createTableMyAccount(){ //метод по созданию таблицы myAccount
         try(Connection connection = new ConnectionUtil().getMyH2Connection()) { //создаем соединение
-            String sql = "CREATE TABLE myAccount ( Id BIGSERIAL PRIMARY KEY, UserName VARCHAR(64), Password VARCHAR(64));";
+            String sql = "CREATE TABLE myAccount ( Id BIGSERIAL PRIMARY KEY, UserName VARCHAR(64) NOT NULL, Password VARCHAR(64) NOT NULL);";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
         }catch (Exception e){
