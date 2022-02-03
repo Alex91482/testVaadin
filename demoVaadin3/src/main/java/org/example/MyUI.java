@@ -45,15 +45,4 @@ public class MyUI extends UI {
     }
 
 
-    /*private Grid<MyEvent> myGridVersionOne(){ //создаем таблицу с событиями
-        Grid<MyEvent> grid = new Grid<>();
-        //grid.setItems(list);
-        //grid.addColumn(MyEvent::getName).setCaption("Name");
-        //grid.addColumn(MyEvent::getDate).setCaption("Date");
-        //grid.addColumn(MyEvent::getCity).setCaption("City");
-        //grid.addColumn(MyEvent::getBuilding).setCaption("Building");
-        return grid;
-    }*/
-    //получить все, получить по id
-
 }

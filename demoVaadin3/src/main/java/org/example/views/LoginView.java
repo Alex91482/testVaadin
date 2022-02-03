@@ -6,6 +6,10 @@ import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
 import org.example.entity.MyAccount;
 import org.example.util.jdbc.dao.MyAccountDAO;
+import org.example.util.jdbc.dao.MyEventDAO;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginView extends VerticalLayout implements View {
     public LoginView() {

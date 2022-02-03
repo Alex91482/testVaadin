@@ -3,9 +3,7 @@ package org.example.util.jdbc.dao;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.connector.ConnectionUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,4 +104,31 @@ public class MyEventDAO {
         }
         return myEvent; //ожидаем получить событие либо пустое событие
     }
+
+    public void deleteByIdMyEvent(long id){ //удалить запись по id
+        try(Connection connection = new ConnectionUtil().getMyH2Connection()){ //создаем соединение
+            String sql = "DELETE FROM myEvent WHERE Id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void deleteByIdListMyEvent(List<Long> list){ //удалить записи по id
+        if(!list.isEmpty()) { //если лист не пустой тогда перебираем
+            try (Connection connection = new ConnectionUtil().getMyH2Connection()) { //создаем соединение
+                for (long id : list) {
+                    String sql = "DELETE FROM myEvent WHERE Id = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setLong(1, id);
+                    preparedStatement.executeUpdate();
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
 }
