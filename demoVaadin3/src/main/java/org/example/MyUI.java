@@ -4,17 +4,15 @@ import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
-import org.example.entity.MyEvent;
+
 import org.example.util.init.Init;
 import org.example.views.GridView;
 import org.example.views.LoginView;
 
-import java.util.List;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -28,6 +26,8 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+        //на каждый запрос открывается соединение и после выполнения соединение с бд закрывается
+        //
         Init init1 = Init.getInstance(); //создание таблиц
 
         LoginView loginView = new LoginView();

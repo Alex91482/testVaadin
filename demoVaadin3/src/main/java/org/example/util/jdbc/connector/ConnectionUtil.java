@@ -8,7 +8,7 @@ public class ConnectionUtil {
 
     public Connection getMyH2Connection()throws SQLException, Exception { //метод по созданию соединения к бд
         String DRIVER = "org.h2.Driver";
-        String URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1";
+        String URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"; // ;DB_CLOSE_DELAY=-1 означает что после закрытия соединения не удалять данные
         String USER_NAME = "sa";
         String PASSWORD = "";
 
