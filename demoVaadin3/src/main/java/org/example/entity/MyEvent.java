@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 public class MyEvent {
 
-
     private long id;
     private String name;
     private String date;

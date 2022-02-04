@@ -5,11 +5,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
 import org.example.entity.MyAccount;
-import org.example.util.jdbc.dao.MyAccountDAO;
-import org.example.util.jdbc.dao.MyEventDAO;
-
-import java.util.Arrays;
-import java.util.List;
+import org.example.util.jdbc.dao.MyAccountDAOImpl;
 
 public class LoginView extends VerticalLayout implements View {
     public LoginView() {
@@ -35,7 +31,7 @@ public class LoginView extends VerticalLayout implements View {
         button.addClickListener(event -> {
             if(!tf1.getValue().equals("") && !passwordField.getValue().equals("")){
                 //если логин и пароль не пустые то делаем запрос в бд
-                MyAccount myAccount = new MyAccountDAO().findMyAccount(tf1.getValue(),passwordField.getValue());
+                MyAccount myAccount = new MyAccountDAOImpl().findMyAccount(tf1.getValue(),passwordField.getValue());
                 if(myAccount.getUserName() != null && !myAccount.getUserName().equals("")){
                     //проверяем поле username
                     this.getUI().getNavigator().navigateTo("grid");
