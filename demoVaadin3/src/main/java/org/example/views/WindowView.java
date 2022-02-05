@@ -4,11 +4,7 @@ import com.vaadin.ui.*;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
 
-import java.util.List;
-
 public class WindowView {
-
-    private  Grid<MyEvent> grid1; //требуется для метода обновления после сохранения события insertAllMyEvent()
 
     private Window subWindow;
     private Label label; //строка в окне для подсказке пользователю
@@ -18,9 +14,7 @@ public class WindowView {
     private TextField tfCity; //текстовое поле для окна создания/перезаписи события
     private TextField tfBuilding; //текстовое поле для окна создания/перезаписи события
 
-    public Window makeAWindow(String value, MyEvent myEvent,Grid<MyEvent> grid1){ //окно по редактированию или созданию MyEvent
-
-        this.grid1 = grid1; //требуется для метода обновления после сохранения события insertAllMyEvent()
+    public Window makeAWindow(String value, MyEvent myEvent){ //окно по редактированию или созданию MyEvent
 
         subWindow = new Window("Event option");
         VerticalLayout subContent = new VerticalLayout();
@@ -83,7 +77,6 @@ public class WindowView {
                         .building(building)
                         .build()
                 );
-                insertAllMyEvent(); //обновляем таблицу перед закрытием окна
                 subWindow.close(); //закрываем окно
             }else {
                 label.setValue("Pleas Fill All Fields"); //если какое либо из полей не заполнена меняем текст
@@ -122,7 +115,6 @@ public class WindowView {
                             .building(building)
                             .build()
                     );
-                    insertAllMyEvent(); //обновляем таблицу перед закрытием окна
                     subWindow.close(); //закрываем окно
                 }
                 else {
@@ -142,11 +134,5 @@ public class WindowView {
     private void updateMyEvent(MyEvent myEvent){
         System.out.println(">> Update MyEvent id = " + myEvent.getId());
         new MyEventDAOImpl().updateMyEvent(myEvent);
-    }
-
-    private void insertAllMyEvent(){ //метод по заполнению таблицы данными из бд
-        System.out.println(">> Fill the table with events");
-        List<MyEvent> list = new MyEventDAOImpl().findAllMyEvent(); //получить все события
-        grid1.setItems(list); //все события из бд записываем в таблицу
     }
 }

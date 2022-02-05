@@ -62,11 +62,12 @@ public class GridView extends VerticalLayout implements View {
         if (!windowsOpen) { //если флаг false то создаем окно
             System.out.println(">> Editor Event open");
 
-            Window subWindow = new WindowView().makeAWindow(value,myEvent,grid1);
+            Window subWindow = new WindowView().makeAWindow(value,myEvent);
 
             MyUI.getCurrent().addWindow(subWindow); //добавляем окно на страницу
             windowsOpen = true; //флаг окно созданно
             subWindow.addCloseListener(e -> {
+                insertAllMyEvent(); //обновляем таблицу после закрытия окна
                 windowsOpen = false; //флаг окно закрыто
                 System.out.println(">> Editor Event close");
             });
