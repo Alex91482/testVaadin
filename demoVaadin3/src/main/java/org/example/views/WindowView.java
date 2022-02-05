@@ -107,8 +107,7 @@ public class WindowView {
                     System.out.println(">> Save event: name = " + name + " date =  " + date + " city = "
                             + city + " building = " + building);
                     updateMyEvent(new MyEvent().builder()
-                            .id(myEvent.getId()) //можно задать любое действительное значение (оно будет проигнорированно при сохранении)
-                            //и требуется тоько для функционирования билдера
+                            .id(myEvent.getId()) //требуется существующее значение id для метода обновления
                             .name(name)
                             .date(date)
                             .city(city)
