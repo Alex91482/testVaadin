@@ -1,5 +1,7 @@
 package org.example.views;
 
+
+import com.vaadin.data.HasValue;
 import com.vaadin.ui.*;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
@@ -14,7 +16,11 @@ public class WindowView {
     private TextField tfCity; //текстовое поле для окна создания/перезаписи события
     private TextField tfBuilding; //текстовое поле для окна создания/перезаписи события
 
-    public Window makeAWindow(String value, MyEvent myEvent){ //окно по редактированию или созданию MyEvent
+    private Button buttonSave;
+    private MyEvent myEvent;
+
+    public Window window( MyEvent myEvent){ //окно по редактированию или созданию MyEvent
+        this.myEvent = myEvent;
 
         subWindow = new Window("Event option");
         VerticalLayout subContent = new VerticalLayout();
@@ -22,117 +28,79 @@ public class WindowView {
         label = new Label("Fill in All Fields");
 
         tfName = new TextField("Name");
+        tfName.addValueChangeListener(new ValidationCheckListener());
         tfDate = new TextField("Date");
+        tfDate.addValueChangeListener(new ValidationCheckListener());
         tfCity = new TextField("City");
+        tfCity.addValueChangeListener(new ValidationCheckListener());
         tfBuilding = new TextField("Building");
+        tfBuilding.addValueChangeListener(new ValidationCheckListener());
 
-        Button buttonSave = new Button("Save");
-
-        //требуется определить нужно ли заполнять поля существующими данными
-        //и требуется ли передавать id для обновления
-        //для этого используем переданное значение value
-        switch (value){
-            case ("create") : //получили вызов создать
-                buttonSaveCreate(buttonSave);
-                break;
-            case ("edit") : //получили вызов обновить
-                buttonEditCreate(buttonSave, myEvent);
-                break;
-        }
-
+        buttonSave = new Button("Save");
+        buttonSave.setEnabled(false);
+        buttonSave.addClickListener(click ->{
+            saveOrUpdate(myEvent); //
+            subWindow.close();
+        });
         Button buttonCancel = new Button("Cancel");
         buttonCancel.addClickListener(click -> {
             subWindow.close();
         });
 
-        //собираем все элементы вместе
-        horizontalLayout.addComponents(buttonSave,buttonCancel);
-        subContent.addComponents(label,tfName,tfDate,tfCity,tfBuilding,horizontalLayout);
-        subWindow.setContent(subContent);
-        // Center it in the browser window
-        subWindow.center();
+        if(myEvent != null){
+            //если в метод передали событие а не null то требуется заполнить поля для ввода/редактирования данными
+            //из выбранного события
+            init(myEvent); //метод заполнения полей
+        }
 
+        //собираем все элементы вместе
+        horizontalLayout.addComponents(buttonSave, buttonCancel);
+        subContent.addComponents(label, tfName, tfDate, tfCity, tfBuilding, horizontalLayout);
+        subWindow.setContent(subContent);
+        subWindow.center();
         return subWindow; //ожидаем окно с полями для ввода данных и двумя кнопками сохранить, отменить
     }
 
-    private void buttonSaveCreate(Button button){ //когда требуется сохранить новое событие
-        button.addClickListener(click ->{
-            //проверяем поля там должно быть хоть что то
-            if(!tfName.getValue().isEmpty() && !tfDate.getValue().isEmpty() &&
-                    !tfCity.getValue().isEmpty() && !tfBuilding.getValue().isEmpty()){
-                //если поставить пробелы в полях то валидация  пройдет :-/
-                // equals то же проходит если поставить два пробела
-                String name = tfName.getValue();
-                String date = tfDate.getValue();
-                String city = tfCity.getValue();
-                String building = tfBuilding.getValue();
-                System.out.println(">> Save event: name = " + name + " date =  " + date + " city = "
-                        + city + " building = " + building);
-                createMyEvent(new MyEvent().builder()
-                        .id(1L) //можно задать любое действительное значение (оно будет проигнорированно при сохранении)
-                        //и требуется в данном конкретном случае тоько для функционирования билдера
-                        .name(name)
-                        .date(date)
-                        .city(city)
-                        .building(building)
-                        .build()
-                );
-                subWindow.close(); //закрываем окно
-            }else {
-                label.setValue("Pleas Fill All Fields"); //если какое либо из полей не заполнена меняем текст
-            }
-        });
-    }
-
-    private void buttonEditCreate(Button button, MyEvent myEvent){ //когда требуется обновить существующие событие
-        if(myEvent.getId() != 0 && myEvent.getName() != null && !myEvent.getName().equals("")){
-            //в H2 автоинкремент начинается с 1
-            //перестраховываемся и проверяем пустое ли название события
-
-            tfName.setValue(myEvent.getName());
-            tfDate.setValue(myEvent.getDate());
-            tfCity.setValue(myEvent.getCity());
-            tfBuilding.setValue(myEvent.getBuilding());
-
-            button.addClickListener(click ->{
-                //проверяем поля там должно быть хоть что то
-                if(!tfName.getValue().isEmpty() && !tfDate.getValue().isEmpty() &&
-                        !tfCity.getValue().isEmpty() && !tfBuilding.getValue().isEmpty()) {
-                    //если поставить пробелы в полях то валидация  пройдет :-/
-                    // equals то же проходит если поставить два пробела
-                    String name = tfName.getValue();
-                    String date = tfDate.getValue();
-                    String city = tfCity.getValue();
-                    String building = tfBuilding.getValue();
-                    System.out.println(">> Save event: name = " + name + " date =  " + date + " city = "
-                            + city + " building = " + building);
-                    updateMyEvent(new MyEvent().builder()
-                            .id(myEvent.getId()) //можно задать любое действительное значение (оно будет проигнорированно при сохранении)
-                            //и требуется тоько для функционирования билдера
-                            .name(name)
-                            .date(date)
-                            .city(city)
-                            .building(building)
-                            .build()
-                    );
-                    subWindow.close(); //закрываем окно
-                }
-                else {
-                    label.setValue("Pleas Fill All Fields"); //если какое либо из полей не заполнена меняем текст
-                }
-            });
+    private void saveOrUpdate(MyEvent myEvent){
+        if(myEvent == null){
+            createMyEvent();
         }else{
-            buttonSaveCreate(button); //если экземпляр MyEvent пустой тогда создаем слушателя на обычное сохранение
+            updateMyEvent(myEvent);
         }
     }
 
-    private void createMyEvent(MyEvent myEvent){ //метод по сохранению события в бд
+    private void createMyEvent(){ //метод по сохранению события в бд
         System.out.println(">> Save new MyEvent in db");
-        new MyEventDAOImpl().saveMyEvent(myEvent);
+        new MyEventDAOImpl().saveMyEvent(new MyEvent(0,tfName.getValue(),tfDate.getValue(),
+                tfCity.getValue(),tfBuilding.getValue()));
     }
 
-    private void updateMyEvent(MyEvent myEvent){
+    private void init (MyEvent event){ //метод заполняет поля в окне для редактирования
+        tfName.setValue(event.getName());
+        tfDate.setValue(event.getDate());
+        tfCity.setValue(event.getCity());
+        tfBuilding.setValue(event.getBuilding());
+    }
+
+    private void updateMyEvent(MyEvent myEvent){ //метод по обновлению события
         System.out.println(">> Update MyEvent id = " + myEvent.getId());
+        myEvent.setName(tfName.getValue());
+        myEvent.setDate(tfDate.getValue());
+        myEvent.setCity(tfCity.getValue());
+        myEvent.setBuilding(tfBuilding.getValue());
         new MyEventDAOImpl().updateMyEvent(myEvent);
+    }
+
+    private class ValidationCheckListener implements HasValue.ValueChangeListener {
+        //все ли поля заполнены, если да то разрешить сохранение
+        @Override
+        public void valueChange(HasValue.ValueChangeEvent event) {
+            if(!tfName.getValue().isEmpty() && !tfDate.getValue().isEmpty()
+                    && !tfCity.getValue().isEmpty() && !tfBuilding.getValue().isEmpty()){
+                buttonSave.setEnabled(true);
+            }else{
+                buttonSave.setEnabled(false);
+            }
+        }
     }
 }

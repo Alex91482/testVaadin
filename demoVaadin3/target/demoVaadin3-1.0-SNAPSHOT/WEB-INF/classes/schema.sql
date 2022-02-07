@@ -10,6 +10,6 @@ CREATE TABLE myEvent
 CREATE TABLE myAccount
 (
     Id BIGSERIAL PRIMARY KEY,
-    UserName VARCHAR(64),
-    Password VARCHAR(64)
+    UserName VARCHAR(64) NOT NULL,
+    Password VARCHAR(64) NOT NULL
 );
