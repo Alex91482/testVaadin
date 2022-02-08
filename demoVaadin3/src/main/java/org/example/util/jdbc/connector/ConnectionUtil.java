@@ -5,21 +5,26 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class ConnectionUtil {
 
+    private ConnectionUtil(){}
+
     private final Logger logger = LoggerFactory.getLogger(ConnectionUtil.class);
 
-    public Connection getMyH2Connection()throws SQLException, Exception { //метод по созданию соединения к бд
-        String DRIVER = "org.h2.Driver";
-        String URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"; // ;DB_CLOSE_DELAY=-1 означает что после закрытия соединения не удалять данные
-        String USER_NAME = "sa";
-        String PASSWORD = "";
+    private static Connection connection; //экземпляр который будем возвращать
 
-        Class.forName(DRIVER);
+    public static Connection getMyH2Connection()throws Exception { //метод по созданию соединения к бд
+        if(connection == null){
+            String DRIVER = "org.h2.Driver";
+            String URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"; // ;DB_CLOSE_DELAY=-1 означает что после закрытия соединения не удалять данные
+            String USER_NAME = "sa";
+            String PASSWORD = "";
 
-        return DriverManager.getConnection(URL,USER_NAME,PASSWORD); //ожидаем состоявшийся экземпляр соединения
+            Class.forName(DRIVER);
+            connection = DriverManager.getConnection(URL,USER_NAME,PASSWORD);
+        }
+        return connection; //ожидаем состоявшийся экземпляр соединения
     }
 
     public void closeQuietly(Connection connection){ //метод по закрытию соединения

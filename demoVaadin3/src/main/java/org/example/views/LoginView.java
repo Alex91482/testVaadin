@@ -6,10 +6,14 @@ import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
 import org.example.entity.MyAccount;
 import org.example.util.jdbc.dao.MyAccountDAOImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoginView extends VerticalLayout implements View {
-    public LoginView() {
 
+    private final Logger logger = LoggerFactory.getLogger(LoginView.class);
+
+    public LoginView() {
         demoPanel(this);
     }
 
@@ -29,17 +33,21 @@ public class LoginView extends VerticalLayout implements View {
 
         Button button = new Button("OK"); //кнопка для подтверждения
         button.addClickListener(event -> {
-            if(!tf1.getValue().equals("") && !passwordField.getValue().equals("")){
-                //если логин и пароль не пустые то делаем запрос в бд
-                MyAccount myAccount = new MyAccountDAOImpl().findMyAccount(tf1.getValue(),passwordField.getValue());
-                if(myAccount.getUserName() != null && !myAccount.getUserName().equals("")){
-                    //проверяем поле username
-                    this.getUI().getNavigator().navigateTo("grid");
-                }else{
-                    label1.setValue("User " + tf1.getValue() + " is not found");
+            try {
+                if (!tf1.getValue().equals("") && !passwordField.getValue().equals("")) {
+                    //если логин и пароль не пустые то делаем запрос в бд
+                    MyAccount myAccount = new MyAccountDAOImpl().findMyAccount(tf1.getValue(), passwordField.getValue());
+                    if (myAccount.getUserName() != null && !myAccount.getUserName().equals("")) {
+                        //проверяем поле username
+                        this.getUI().getNavigator().navigateTo("grid");
+                    } else {
+                        label1.setValue("User " + tf1.getValue() + " is not found");
+                    }
+                } else {
+                    label1.setValue("Username and Password fields must be filled");
                 }
-            }else{
-                label1.setValue("Username and Password fields must be filled");
+            }catch (Exception e){
+               logger.error(e.getMessage());
             }
         });
 

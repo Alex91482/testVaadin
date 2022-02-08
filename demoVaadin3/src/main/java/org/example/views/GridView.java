@@ -1,6 +1,7 @@
 package org.example.views;
 
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.example.MyUI;
@@ -105,14 +106,26 @@ public class GridView extends VerticalLayout implements View {
     }
 
     private void insertAllMyEvent() { //метод по заполнению таблицы данными из бд
-        logger.info(">> Fill the table with events");
-        List<MyEvent> list = new MyEventDAOImpl().findAllMyEvent(); //получить все события
-        grid1.setItems(list); //все события из бд записываем в таблицу
+        try {
+            logger.info(">> Fill the table with events");
+            List<MyEvent> list = new MyEventDAOImpl().findAllMyEvent(); //получить все события
+            grid1.setItems(list); //все события из бд записываем в таблицу
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            new Notification("Error", "Error filling table with data",
+                    Notification.Type.ERROR_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением пользователю о ошибке
+        }
     }
 
     private void deleteMyEvent(MyEvent myEvent) { //метод по удалению выбранного события
-        logger.info(">> Deleting events from id " + myEvent.getId());
-        new MyEventDAOImpl().deleteByIdMyEvent(myEvent.getId());
+        try {
+            logger.info(">> Deleting events from id " + myEvent.getId());
+            new MyEventDAOImpl().deleteByIdMyEvent(myEvent.getId());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            new Notification("Error", "Error when deleting selected event",
+                    Notification.Type.ERROR_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением пользователю о ошибке
+        }
     }
 
 }

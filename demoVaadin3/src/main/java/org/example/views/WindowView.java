@@ -2,6 +2,7 @@ package org.example.views;
 
 
 import com.vaadin.data.HasValue;
+import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
@@ -49,8 +50,8 @@ public class WindowView {
         });
 
         if(myEvent != null){
-            //если в метод передали событие а не null то требуется заполнить поля для ввода/редактирования данными
-            //из выбранного события
+            //если при вызове окна было переданно не нулевое событие
+            //то требуется заполнить поля окна
             init(myEvent); //метод заполнения полей
         }
 
@@ -62,18 +63,13 @@ public class WindowView {
         return subWindow; //ожидаем окно с полями для ввода данных и двумя кнопками сохранить, отменить
     }
 
-    private void saveOrUpdate(MyEvent myEvent){
+
+    private void saveOrUpdate(MyEvent myEvent){ //метод по определению вызова сохранить или обновить
         if(myEvent == null){
             createMyEvent();
         }else{
             updateMyEvent(myEvent);
         }
-    }
-
-    private void createMyEvent(){ //метод по сохранению события в бд
-        logger.info(">> Save new MyEvent in db");
-        new MyEventDAOImpl().saveMyEvent(new MyEvent(0, tfName.getValue(), tfDate.getValue(),
-                tfCity.getValue(), tfBuilding.getValue()));
     }
 
     private void init (MyEvent event){ //метод заполняет поля в окне для редактирования
@@ -83,16 +79,7 @@ public class WindowView {
         tfBuilding.setValue(event.getBuilding());
     }
 
-    private void updateMyEvent(MyEvent myEvent){ //метод по обновлению события
-        logger.info(">> Update MyEvent id = " + myEvent.getId());
-        myEvent.setName(tfName.getValue());
-        myEvent.setDate(tfDate.getValue());
-        myEvent.setCity(tfCity.getValue());
-        myEvent.setBuilding(tfBuilding.getValue());
-        new MyEventDAOImpl().updateMyEvent(myEvent);
-    }
-
-    private class ValidationCheckListener implements HasValue.ValueChangeListener {
+    private class ValidationCheckListener implements HasValue.ValueChangeListener { //валидация данных введеных пользователем
         //все ли поля заполнены, если да то разрешить сохранение
         @Override
         public void valueChange(HasValue.ValueChangeEvent event) {
@@ -121,4 +108,32 @@ public class WindowView {
         }
         return false; //если хотя бы одна из строк не содержит какие либо данные а пробелы то валидация не пройденна
     }
+
+    private void createMyEvent(){ //метод по сохранению события в бд
+        try {
+            logger.info(">> Save new MyEvent in db");
+            new MyEventDAOImpl().saveMyEvent(new MyEvent(0, tfName.getValue(), tfDate.getValue(),
+                    tfCity.getValue(), tfBuilding.getValue()));
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            new Notification("Error", "Error when trying to save to database",
+                    Notification.Type.ERROR_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением пользователю о ошибке
+        }
+    }
+
+    private void updateMyEvent(MyEvent myEvent){ //метод по обновлению события
+        try {
+            logger.info(">> Update MyEvent id = " + myEvent.getId());
+            myEvent.setName(tfName.getValue());
+            myEvent.setDate(tfDate.getValue());
+            myEvent.setCity(tfCity.getValue());
+            myEvent.setBuilding(tfBuilding.getValue());
+            new MyEventDAOImpl().updateMyEvent(myEvent);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            new Notification("Error", "Error when trying to update to database",
+                    Notification.Type.ERROR_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением пользователю о ошибке
+        }
+    }
+
 }
