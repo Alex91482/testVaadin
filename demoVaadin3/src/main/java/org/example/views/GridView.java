@@ -6,10 +6,14 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.example.MyUI;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class GridView extends VerticalLayout implements View {
+
+    private final Logger logger = LoggerFactory.getLogger(GridView.class);
 
     private Grid<MyEvent> grid1;
     private boolean windowsOpen = false; //флаг открыто ли окно для изменения/добавления MyEvent
@@ -20,18 +24,17 @@ public class GridView extends VerticalLayout implements View {
 
     public GridView() {
         HorizontalLayout horizontalLayout = new HorizontalLayout(); //часть с кнопками
-        grid1 = makeATable(); //таблица
-        insertAllMyEvent(); //заполнение данными
+        grid1 = makeATable(); //создаем таблицу
+        insertAllMyEvent(); //заполнение данными из бд
         grid1.setSizeFull(); //таблица на весь экран
-
-        grid1.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid1.setSelectionMode(Grid.SelectionMode.SINGLE); //модефикация таблицы для возможности выбора строки в таблице
 
         grid1.addItemClickListener(event -> { //слушатель на двойной клик
             if (event.getMouseEventDetails().isDoubleClick()) {
                 checkExists(event.getItem());
             }
         });
-        grid1.addSelectionListener(event -> {
+        grid1.addSelectionListener(event -> { //слушатель на выбор строки в таблице
             if (event.getFirstSelectedItem().isPresent()) { //если значение выбранно то можно редактировать и удалять
                 buttonDelete.setEnabled(true);
                 buttonEdit.setEnabled(true);
@@ -45,11 +48,12 @@ public class GridView extends VerticalLayout implements View {
         buttonCreate.addStyleName(ValoTheme.BUTTON_FRIENDLY); //изменение цвета кнопки на зеленый
         buttonCreate.addClickListener(event -> {
             //создание события
-            //вызываем функцию проверки состояния окна и передаем null
+            //вызываем функцию проверки состояния окна и передаем null т.к. вызываются методы сохранения нового события
             checkExists(null);
         });
         buttonDelete = new Button("Delete");
         buttonDelete.addStyleName(ValoTheme.BUTTON_DANGER); //изменение цвета кнопки на красный
+        //по умолчанию заблокированно (разблокируется методом выше grid1.addSelectionListener)
         buttonDelete.setEnabled(false);
         buttonDelete.addClickListener(event -> {
             //вызов функции по удалению событий из бд
@@ -72,7 +76,10 @@ public class GridView extends VerticalLayout implements View {
 
     private void checkExists(MyEvent myEvent) { //метод по проверки того существует ли окно
         if (!windowsOpen) { //если флаг false то создаем окно
-            System.out.println(">> Editor Event open");
+            //на момент открытия окна блокируем кнопку удаления
+            //после закрытия окна выделение со строки снмается так что кнопка разблокируется при выборе строки
+            buttonDelete.setEnabled(false);
+            logger.info(">> Editor Event open");
 
             Window subWindow = new WindowView().window(myEvent);
 
@@ -81,7 +88,7 @@ public class GridView extends VerticalLayout implements View {
             subWindow.addCloseListener(e -> {
                 insertAllMyEvent(); //обновляем таблицу после закрытия окна
                 windowsOpen = false; //флаг окно закрыто
-                System.out.println(">> Editor Event close");
+                logger.info(">> Editor Event close");
             });
         }
     }
@@ -98,13 +105,13 @@ public class GridView extends VerticalLayout implements View {
     }
 
     private void insertAllMyEvent() { //метод по заполнению таблицы данными из бд
-        System.out.println(">> Fill the table with events");
+        logger.info(">> Fill the table with events");
         List<MyEvent> list = new MyEventDAOImpl().findAllMyEvent(); //получить все события
         grid1.setItems(list); //все события из бд записываем в таблицу
     }
 
     private void deleteMyEvent(MyEvent myEvent) { //метод по удалению выбранного события
-        System.out.println(">> Deleting events from id " + myEvent.getId());
+        logger.info(">> Deleting events from id " + myEvent.getId());
         new MyEventDAOImpl().deleteByIdMyEvent(myEvent.getId());
     }
 

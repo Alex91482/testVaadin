@@ -2,12 +2,16 @@ package org.example.util.jdbc.dao;
 
 import org.example.entity.MyAccount;
 import org.example.util.jdbc.connector.ConnectionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class MyAccountDAOImpl implements MyAccountDAO{
+
+    private final Logger logger = LoggerFactory.getLogger(MyAccountDAOImpl.class);
 
     @Override
     public void createTableMyAccount(){ //метод по созданию таблицы myAccount
@@ -16,7 +20,7 @@ public class MyAccountDAOImpl implements MyAccountDAO{
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     } //ожидаем создание таблицы
 
@@ -40,7 +44,7 @@ public class MyAccountDAOImpl implements MyAccountDAO{
                         .build();
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
 
         return myAccount; //ожидаем получить найденый аккунт либо пустой аккаунт
@@ -55,7 +59,7 @@ public class MyAccountDAOImpl implements MyAccountDAO{
             preparedStatement.setString(2, password);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     } //ожидаем сохраненный в бд новый аккаунт
 }

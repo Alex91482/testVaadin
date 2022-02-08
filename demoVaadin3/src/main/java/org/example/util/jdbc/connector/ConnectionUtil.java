@@ -1,10 +1,15 @@
 package org.example.util.jdbc.connector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionUtil {
+
+    private final Logger logger = LoggerFactory.getLogger(ConnectionUtil.class);
 
     public Connection getMyH2Connection()throws SQLException, Exception { //метод по созданию соединения к бд
         String DRIVER = "org.h2.Driver";
@@ -21,7 +26,7 @@ public class ConnectionUtil {
         try{
             connection.close();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
@@ -29,7 +34,7 @@ public class ConnectionUtil {
         try {
             connection.rollback();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 }

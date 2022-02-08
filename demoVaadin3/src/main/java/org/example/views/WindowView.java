@@ -5,11 +5,14 @@ import com.vaadin.data.HasValue;
 import com.vaadin.ui.*;
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WindowView {
 
+    private final Logger logger = LoggerFactory.getLogger(WindowView.class);
+
     private Window subWindow;
-    private Label label; //строка в окне для подсказке пользователю
 
     private TextField tfName; //текстовое поле для окна создания/перезаписи события
     private TextField tfDate; //текстовое поле для окна создания/перезаписи события
@@ -17,15 +20,13 @@ public class WindowView {
     private TextField tfBuilding; //текстовое поле для окна создания/перезаписи события
 
     private Button buttonSave;
-    private MyEvent myEvent;
 
     public Window window( MyEvent myEvent){ //окно по редактированию или созданию MyEvent
-        this.myEvent = myEvent;
 
         subWindow = new Window("Event option");
         VerticalLayout subContent = new VerticalLayout();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        label = new Label("Fill in All Fields");
+        Label label = new Label("Fill in All Fields"); //строка в окне для подсказки пользователю
 
         tfName = new TextField("Name");
         tfName.addValueChangeListener(new ValidationCheckListener());
@@ -70,9 +71,9 @@ public class WindowView {
     }
 
     private void createMyEvent(){ //метод по сохранению события в бд
-        System.out.println(">> Save new MyEvent in db");
-        new MyEventDAOImpl().saveMyEvent(new MyEvent(0,tfName.getValue(),tfDate.getValue(),
-                tfCity.getValue(),tfBuilding.getValue()));
+        logger.info(">> Save new MyEvent in db");
+        new MyEventDAOImpl().saveMyEvent(new MyEvent(0, tfName.getValue(), tfDate.getValue(),
+                tfCity.getValue(), tfBuilding.getValue()));
     }
 
     private void init (MyEvent event){ //метод заполняет поля в окне для редактирования
@@ -83,7 +84,7 @@ public class WindowView {
     }
 
     private void updateMyEvent(MyEvent myEvent){ //метод по обновлению события
-        System.out.println(">> Update MyEvent id = " + myEvent.getId());
+        logger.info(">> Update MyEvent id = " + myEvent.getId());
         myEvent.setName(tfName.getValue());
         myEvent.setDate(tfDate.getValue());
         myEvent.setCity(tfCity.getValue());
@@ -95,12 +96,29 @@ public class WindowView {
         //все ли поля заполнены, если да то разрешить сохранение
         @Override
         public void valueChange(HasValue.ValueChangeEvent event) {
+
             if(!tfName.getValue().isEmpty() && !tfDate.getValue().isEmpty()
-                    && !tfCity.getValue().isEmpty() && !tfBuilding.getValue().isEmpty()){
+                    && !tfCity.getValue().isEmpty() && !tfBuilding.getValue().isEmpty()
+                    && validationStr(tfName.getValue(), tfDate.getValue(),
+                    tfCity.getValue(), tfBuilding.getValue())){
                 buttonSave.setEnabled(true);
             }else{
                 buttonSave.setEnabled(false);
             }
         }
+    }
+
+    private boolean validationStr(String name, String date, String city, String building){
+        //метод удаляет все пробелы в начале и конце строки
+        int nameLength = name.trim().length();
+        int dateLength = date.trim().length();
+        int cityLength = city.trim().length();
+        int buildingLength = building.trim().length();
+
+        if(nameLength > 0 && dateLength > 0 &&
+            cityLength > 0 && buildingLength > 0){
+            return true; //во всех строках содержится хотя бы по одному символу
+        }
+        return false; //если хотя бы одна из строк не содержит какие либо данные а пробелы то валидация не пройденна
     }
 }

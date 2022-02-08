@@ -6,9 +6,12 @@ import org.example.util.jdbc.dao.MyAccountDAO;
 import org.example.util.jdbc.dao.MyAccountDAOImpl;
 import org.example.util.jdbc.dao.MyEventDAO;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Init {
 
+    private static final Logger logger = LoggerFactory.getLogger(Init.class);
     private static Init instance;
 
     private Init(){}
@@ -23,16 +26,16 @@ public class Init {
 
     private static void initial(){ //создаем таблицы и добовляем тестовые записи
         try {
-            System.out.println(">> Start init");
+            logger.info(">> Start init");
             MyAccountDAO myAccountDAOImpl = new MyAccountDAOImpl();
             MyEventDAO myEventDAOImpl = new MyEventDAOImpl();
             //создаем таблицы
-            System.out.println(">> Create table");
+            logger.info(">> Create table");
             myAccountDAOImpl.createTableMyAccount();
             myEventDAOImpl.createTableMyEvent();
             //создаем тестовые данные
             //тестовый аккаунт
-            System.out.println(">> Insert in table");
+            logger.info(">> Insert in table");
             myAccountDAOImpl.saveMyAccount("admin","admin");
             //тестовые события
             myEventDAOImpl.saveMyEvent(new MyEvent().builder().id(1L).name("Ded Dance").date("1984-01-01").city("Silent Hill").building("Church").build());
@@ -42,9 +45,9 @@ public class Init {
             myEventDAOImpl.saveMyEvent(new MyEvent().builder().id(5L).name("Call of Cthulhu").date("1981-06-06").city("England").building("Пх’нглуи мглв’нафх Ктулху Р’льех вгах’нагл фхтагн").build());
             myEventDAOImpl.saveMyEvent(new MyEvent().builder().id(6L).name("Azathoth").date("1938-06-06").city("Universe").building("Center of the galaxy").build());
             myEventDAOImpl.saveMyEvent(new MyEvent().builder().id(7L).name("Dagon").date("1912-06-06").city("Pacific Ocean").building("unknown").build());
-            System.out.println(">> Init to end");
+            logger.info(">> Init to end");
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 }

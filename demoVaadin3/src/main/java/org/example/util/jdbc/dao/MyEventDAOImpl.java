@@ -2,6 +2,8 @@ package org.example.util.jdbc.dao;
 
 import org.example.entity.MyEvent;
 import org.example.util.jdbc.connector.ConnectionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MyEventDAOImpl implements MyEventDAO{
+
+    private final Logger logger = LoggerFactory.getLogger(MyEventDAOImpl.class);
 
     @Override
     public void createTableMyEvent(){ //метод по созданию таблицы
@@ -21,7 +25,7 @@ public class MyEventDAOImpl implements MyEventDAO{
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     } //ожидаем что таблица будет создана
 
@@ -36,12 +40,12 @@ public class MyEventDAOImpl implements MyEventDAO{
             preparedStatement.setString(4, myEvent.getBuilding());
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     } // ожидаем что событие будет сохранено
 
     @Override
-    public void updateMyEvent(MyEvent myEvent){
+    public void updateMyEvent(MyEvent myEvent){ //метод по обновлению записи
         try(Connection connection = new ConnectionUtil().getMyH2Connection()) { //создаем соединение
             String sql = "UPDATE myEvent SET Name = ?, Date = ?, City = ?, Building = ? WHERE Id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -52,9 +56,9 @@ public class MyEventDAOImpl implements MyEventDAO{
             preparedStatement.setLong(5, myEvent.getId());
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
-    }
+    } //ожидаем обновление записи в бд
 
     @Override
     public List<MyEvent> findAllMyEvent(){ //метод по извлечению всех записей из таблицы myEvent
@@ -75,7 +79,7 @@ public class MyEventDAOImpl implements MyEventDAO{
                 );
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return list; //ожидаем получить список с событиями либо пустой список
     }
@@ -99,7 +103,7 @@ public class MyEventDAOImpl implements MyEventDAO{
                         .build();
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return myEvent; //ожидаем получить событие либо пустое событие
     }
@@ -123,7 +127,7 @@ public class MyEventDAOImpl implements MyEventDAO{
                         .build();
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return myEvent; //ожидаем получить событие либо пустое событие
     }
@@ -136,7 +140,7 @@ public class MyEventDAOImpl implements MyEventDAO{
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     } //ожидаем что запись будет удалена (если нет такой записи то запрос просто проигнорируется)
 
@@ -153,7 +157,7 @@ public class MyEventDAOImpl implements MyEventDAO{
                     preparedStatement.executeUpdate();
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
         }
     } //ожидаем что все записи из множества будут удалены
