@@ -1,16 +1,20 @@
 package org.example.views;
 
+import com.vaadin.data.provider.Query;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.example.MyUI;
 import org.example.entity.MyEvent;
+import org.example.service.xls.XlsService;
 import org.example.util.jdbc.dao.MyEventDAOImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GridView extends VerticalLayout implements View {
 
@@ -20,6 +24,7 @@ public class GridView extends VerticalLayout implements View {
     private boolean windowsOpen = false; //флаг открыто ли окно для изменения/добавления MyEvent
 
     private Button buttonCreate;
+    private Button buttonCreateDocument;
     private Button buttonDelete;
     private Button buttonEdit;
 
@@ -46,7 +51,7 @@ public class GridView extends VerticalLayout implements View {
         });
 
         buttonCreate = new Button("Create");
-        buttonCreate.addStyleName(ValoTheme.BUTTON_FRIENDLY); //изменение цвета кнопки на зеленый
+        buttonCreate.addStyleName("myCreate"); //изменение цвета текста кнопки
         buttonCreate.addClickListener(event -> {
             //создание события
             //вызываем функцию проверки состояния окна и передаем null т.к. вызываются методы сохранения нового события
@@ -66,10 +71,18 @@ public class GridView extends VerticalLayout implements View {
         buttonEdit.setEnabled(false);
         buttonEdit.addClickListener(event -> {
             //обновление события
-            //вызываем функцию проверки состояния окна и передаем в нее названия кнопки вызова
+            //вызываем функцию проверки состояния окна и передаем в нее событие выбранное в таблице
             checkExists(grid1.getSelectedItems().stream().findFirst().get());
         });
-        horizontalLayout.addComponents(buttonCreate, buttonDelete, buttonEdit);
+        buttonCreateDocument = new Button("Create Document");
+        buttonCreateDocument.addStyleName("myCreate"); //изменение цвета текста кнопки
+        buttonCreateDocument.addClickListener(event -> {
+            //данные для отчета берем из таблицы и передаем в метод который вызовет класс отвечающей за создание отчетов
+            createDocXls(grid1.getDataProvider()
+                    .fetch(new Query<>()).collect(Collectors.toList()));
+
+        });
+        horizontalLayout.addComponents(buttonCreate, buttonDelete, buttonEdit, buttonCreateDocument);
 
         this.addComponents(grid1, horizontalLayout);
     }
@@ -77,9 +90,10 @@ public class GridView extends VerticalLayout implements View {
 
     private void checkExists(MyEvent myEvent) { //метод по проверки того существует ли окно
         if (!windowsOpen) { //если флаг false то создаем окно
-            //на момент открытия окна блокируем кнопку удаления
-            //после закрытия окна выделение со строки снмается так что кнопка разблокируется при выборе строки
+            //на момент открытия окна блокируем кнопку удаления и создания отчета
+            //после закрытия окна выделение со строки снмается так что кнопка delete разблокируется при выборе строки
             buttonDelete.setEnabled(false);
+            buttonCreateDocument.setEnabled(false);
             logger.info(">> Editor Event open");
 
             Window subWindow = new WindowView().window(myEvent);
@@ -89,6 +103,7 @@ public class GridView extends VerticalLayout implements View {
             subWindow.addCloseListener(e -> {
                 insertAllMyEvent(); //обновляем таблицу после закрытия окна
                 windowsOpen = false; //флаг окно закрыто
+                buttonCreateDocument.setEnabled(true); //разблокируем кнопку создания отчета
                 logger.info(">> Editor Event close");
             });
         }
@@ -102,7 +117,7 @@ public class GridView extends VerticalLayout implements View {
         grid.addColumn(MyEvent::getCity).setCaption("City");
         grid.addColumn(MyEvent::getBuilding).setCaption("Building");
 
-        return grid; //ожидаем озданную таблицу на странице
+        return grid; //ожидаем созданную таблицу
     }
 
     private void insertAllMyEvent() { //метод по заполнению таблицы данными из бд
@@ -128,4 +143,22 @@ public class GridView extends VerticalLayout implements View {
         }
     }
 
+    private void createDocXls(List<MyEvent> myEventList){ //метод по созданию файла xls в папке temp
+        try{
+            boolean createReport = new XlsService().createXlsFile(myEventList);
+            if(createReport){
+                logger.info(">> Report created");
+                new Notification("Info", "Xls report created",
+                        Notification.Type.HUMANIZED_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением что отчет создан
+            }else{
+                logger.warn(">> Report not created");
+                new Notification("Warn", "Failed to generate report",
+                        Notification.Type.WARNING_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением что отчет не создан
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            new Notification("Error", "An error occurred while generating the report",
+                    Notification.Type.ERROR_MESSAGE).show(Page.getCurrent()); //всплывающее окно с объявлением о том что отчет не создан
+        }
+    } //ожидаем что отчет будет создан либо получиненно какое либо сообщение о неудаче
 }

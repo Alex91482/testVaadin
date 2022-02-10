@@ -15436,3 +15436,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-color: #156ab3;
 	background-image: none;
 }
+
+.mytheme .v-button-myCreate {
+	color: #166bca;
+}

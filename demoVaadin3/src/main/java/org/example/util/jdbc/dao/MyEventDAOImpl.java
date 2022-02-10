@@ -15,8 +15,6 @@ public class MyEventDAOImpl implements MyEventDAO{
     @Override
     public void createTableMyEvent() throws Exception{ //метод по созданию таблицы
         Connection connection = ConnectionUtil.getMyH2Connection(); //получаем соединение
-        //Connection релизует интерфейс AutoCloseable
-        //значит можно использовать try-with-resources
         String sql = "CREATE TABLE myEvent ( Id BIGSERIAL PRIMARY KEY, Name VARCHAR(64)," +
                 " Date VARCHAR(64), City VARCHAR(64), Building VARCHAR(128))";
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
