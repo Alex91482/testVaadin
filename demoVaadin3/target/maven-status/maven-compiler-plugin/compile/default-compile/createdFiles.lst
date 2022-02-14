@@ -7,7 +7,6 @@ org\example\entity\MyEvent$MyEventBuilder.class
 org\example\entity\MyAccount.class
 org\example\util\jdbc\dao\MyEventDAO.class
 org\example\views\WindowView.class
-org\example\util\security\SecurityFilter.class
 org\example\views\WindowView$1.class
 org\example\MyUI.class
 org\example\views\LoginView.class
