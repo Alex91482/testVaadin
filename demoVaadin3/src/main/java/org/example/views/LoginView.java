@@ -4,6 +4,7 @@ package org.example.views;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.*;
+import org.example.MyUI;
 import org.example.entity.MyAccount;
 import org.example.util.jdbc.dao.MyAccountDAOImpl;
 import org.slf4j.Logger;
@@ -18,8 +19,6 @@ public class LoginView extends VerticalLayout implements View {
     }
 
     private void demoPanel(VerticalLayout verticalLayout){ //форма для входа
-        //данную "регистрацию" легко обойти если есть ссылка на следующую страницу
-        //например на http://localhost:8080/#!grid
 
         Label label1 = new Label("Enter login and password");
 
@@ -39,6 +38,7 @@ public class LoginView extends VerticalLayout implements View {
                     MyAccount myAccount = new MyAccountDAOImpl().findMyAccount(tf1.getValue(), passwordField.getValue());
                     if (myAccount.getUserName() != null && !myAccount.getUserName().equals("")) {
                         //проверяем поле username
+                        ((MyUI)UI.getCurrent()).setLoggedInUser(myAccount.getId()); //добавляем id авторизованного пользователя
                         this.getUI().getNavigator().navigateTo("grid");
                     } else {
                         label1.setValue("User " + tf1.getValue() + " is not found");

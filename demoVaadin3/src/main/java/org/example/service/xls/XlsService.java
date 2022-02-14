@@ -70,7 +70,7 @@ public class XlsService {
         String bodyOfName = createNameFile();
         Path path = Paths.get(PATH_TO_FILE_DIRECTORY + bodyOfName); //создаем файл в директории temp
         Files.createFile(path);
-        logger.info(">> File exist: " + Files.exists(path)); //файл создан
+        logger.info(">> File exist: " + Files.exists(path) + ", directory: " + path.toAbsolutePath()); //файл создан
         return path; //возвращаем путь с файлом в формате Path
     }
 
@@ -100,7 +100,7 @@ public class XlsService {
     }
 
     public String getPathResource(List<MyEvent> myEventList) throws Exception{ //метод запускает создание файла и возвращает путь к файлу
-        createXlsFile(myEventList); //метод по созданию отчета xls
+        createXlsFile(myEventList); //метод по созданию отчета xls в директории temp
         return getPathDirectory(); //ожидаем что файл будет создан и путь к нему будет возвращен
     }
 
