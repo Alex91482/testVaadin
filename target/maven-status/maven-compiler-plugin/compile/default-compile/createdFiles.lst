@@ -12,6 +12,7 @@ org\example\MyUI.class
 org\example\views\LoginView.class
 org\example\entity\MyAccount$MyAccountBuilder.class
 org\example\MyUI$MyUIServlet.class
+org\example\entity\BinderEntity.class
 org\example\views\WindowView$ValidationCheckListener.class
 org\example\service\xls\DynamicFileResource.class
 org\example\util\jdbc\dao\MyEventDAOImpl.class
